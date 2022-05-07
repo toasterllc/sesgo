@@ -30,11 +30,11 @@ func SendEmail(awsAccessKey, awsSecretKey, to, from, subject, body string) error
 		return mac.Sum(nil)
 	}
 
-	getSigningKey := func(dateStamp string) []byte {
+	signingKey := func(dateStamp string) []byte {
 		return sign(sign(sign(sign([]byte("AWS4"+awsSecretKey), dateStamp), Region), Service), "aws4_request")
 	}
 
-	hashed := func(x string) string {
+	hash := func(x string) string {
 		b := sha256.Sum256([]byte(x))
 		return hex.EncodeToString(b[:])
 	}
@@ -52,7 +52,7 @@ func SendEmail(awsAccessKey, awsSecretKey, to, from, subject, body string) error
 		"Message.Body.Text.Data":           {body},
 	}
 
-	payloadHash := hashed(payload.Encode())
+	payloadHash := hash(payload.Encode())
 
 	t := time.Now().UTC()
 	amzDate := t.Format("20060102T150405Z")
@@ -61,8 +61,8 @@ func SendEmail(awsAccessKey, awsSecretKey, to, from, subject, body string) error
 	canonicalHeaders := "content-type:" + ContentType + "\n" + "host:" + Host + "\n" + "x-amz-date:" + amzDate + "\n"
 	canonicalRequest := Method + "\n" + CanonicalURI + "\n" + CanonicalQueryString + "\n" + canonicalHeaders + "\n" + SignedHeaders + "\n" + payloadHash
 	credentialScope := dateStamp + "/" + Region + "/" + Service + "/" + "aws4_request"
-	stringToSign := Algorithm + "\n" + amzDate + "\n" + credentialScope + "\n" + hashed(canonicalRequest)
-	signature := hex.EncodeToString(sign(getSigningKey(dateStamp), stringToSign))
+	stringToSign := Algorithm + "\n" + amzDate + "\n" + credentialScope + "\n" + hash(canonicalRequest)
+	signature := hex.EncodeToString(sign(signingKey(dateStamp), stringToSign))
 	authorizationHeader := Algorithm + " " + "Credential=" + awsAccessKey + "/" + credentialScope + ", " + "SignedHeaders=" + SignedHeaders + ", " + "Signature=" + signature
 
 	client := &http.Client{}
