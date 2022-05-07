@@ -9,5 +9,5 @@
 Try `sesgo` by running test/email.go:
 
     cd sesgo/test
-    export AWS_ACCESS_KEY_ID="..." AWS_SECRET_ACCESS_KEY="..."
+    export AWS_ACCESS_KEY_ID='...' AWS_SECRET_ACCESS_KEY='...'
     go run email.go to@example.com 'John Doe <from@example.com>' 'Subject line' 'Body text'
