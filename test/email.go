@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/heytoaster/sesgo"
+	"github.com/toasterllc/sesgo"
 )
 
 func main() {

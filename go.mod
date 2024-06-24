@@ -1,3 +1,3 @@
-module github.com/heytoaster/sesgo
+module github.com/toasterllc/sesgo
 
 go 1.18
