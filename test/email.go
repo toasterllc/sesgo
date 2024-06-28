@@ -20,7 +20,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := sesgo.SendEmail(awsAccessKey, awsSecretKey, os.Args[1], os.Args[2], os.Args[3], os.Args[4])
+	to := os.Args[1]
+	from := os.Args[2]
+	subject := os.Args[3]
+	body := os.Args[4]
+	err := sesgo.SendEmail(awsAccessKey, awsSecretKey, from, []string{to}, nil, nil, subject, body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "SendEmail failed: %v\n\n", err)
 		os.Exit(1)

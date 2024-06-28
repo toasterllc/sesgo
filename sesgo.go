@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func SendEmail(awsAccessKey, awsSecretKey, to, from, subject, body string) error {
+func SendEmail(awsAccessKey, awsSecretKey, from string, to, cc, bcc []string, subject, body string) error {
 	const Region = "us-west-1"
 	const Service = "ses"
 	const Host = "email.us-west-1.amazonaws.com"
@@ -41,15 +41,24 @@ func SendEmail(awsAccessKey, awsSecretKey, to, from, subject, body string) error
 
 	payload := url.Values{
 		"Action":                    {"SendEmail"},
-		"Destination.CcAddresses":   {},
 		"Message.Body.Text.Charset": {"UTF-8"},
 		"Message.Subject.Charset":   {"UTF-8"},
 		"Version":                   {"2010-12-01"},
+		"Source":                    {from},
+		"Message.Subject.Data":      {subject},
+		"Message.Body.Text.Data":    {body},
+	}
 
-		"Destination.ToAddresses.member.1": {to},
-		"Source":                           {from},
-		"Message.Subject.Data":             {subject},
-		"Message.Body.Text.Data":           {body},
+	for i, x := range to {
+		payload[fmt.Sprintf("Destination.ToAddresses.member.%v", i+1)] = []string{x}
+	}
+
+	for i, x := range cc {
+		payload[fmt.Sprintf("Destination.CcAddresses.member.%v", i+1)] = []string{x}
+	}
+
+	for i, x := range bcc {
+		payload[fmt.Sprintf("Destination.BccAddresses.member.%v", i+1)] = []string{x}
 	}
 
 	payloadHash := hash(payload.Encode())
